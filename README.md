@@ -14,10 +14,7 @@
 ## AWS Demo
 
 ### Working example is provided on AWS. It consists of:
-
-#### Ubuntu EC2 instance with Tomcat installed. Application is deployed on Tomcat.  Location is https://HOST:8443/
-
-#### Amazon Linux EC2 instance on which Docker is installed. Open LDAP, and LDAP admin UI containers are hosted on Docker.  LDAP admin UI is https://HOST2:6443
-
-#### For Redis backend. Redis from Amazon's ElastiCache service is used.
+1. Ubuntu EC2 instance with Tomcat installed. Application is deployed on Tomcat.  Location is https://HOST:8443/
+2. Amazon Linux EC2 instance on which Docker is installed. Open LDAP, and LDAP admin UI containers are hosted on Docker.  LDAP admin UI is https://HOST2:6443
+3. Redis from Amazon's ElastiCache service.
 
