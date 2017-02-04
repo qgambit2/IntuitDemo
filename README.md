@@ -11,3 +11,11 @@
      <Environment name="LDAP_PRINCIPAL_TEMPLATE" value="cn={0},dc=example,dc=org"  type="java.lang.String"/>
 #### Once the web application is up and running it can be accessed by going to root location. Either based on war file name of based on a location specified specifically for it (Server.xml in Tomcat).  For example <i>http://localhost:8080/intuit</i>. Users will only be able to login using valid credential of users from LDAP.  For REST documentation the relative url is <i>twitter</i>. For example  <i>http://localhost:8080/intuit/twitter</i>
 
+## AWS Demo
+
+#### Ubuntu EC2 instance with Tomcat installed. Application is deployed on Tomcat.  Location is https://HOST:8443/
+
+#### Amazon Linux EC2 instance on which Docker is installed. Open LDAP, and LDAP admin UI containers are hosted on Docker.  LDAP admin UI is https://HOST2:6443
+
+#### For Redis backend. Redis from Amazon's ElastiCache service is used.
+
