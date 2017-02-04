@@ -1,4 +1,4 @@
-# IntuitDemo
+# Intuit Demo Details
 
 #### Twitter is a root folder of Eclipse project that builds a WAR file (<b>intuit.war</b>). See build/build.xml file inside the project.
 #### The WAR file can be deployed on J2EE server like Tomcat.
@@ -12,6 +12,8 @@
 #### Once the web application is up and running it can be accessed by going to root location. Either based on war file name of based on a location specified specifically for it (Server.xml in Tomcat).  For example <i>http://localhost:8080/intuit</i>. Users will only be able to login using valid credential of users from LDAP.  For REST documentation the relative url is <i>twitter</i>. For example  <i>http://localhost:8080/intuit/twitter</i>
 
 ## AWS Demo
+
+### Working example is provided on AWS. It consists of:
 
 #### Ubuntu EC2 instance with Tomcat installed. Application is deployed on Tomcat.  Location is https://HOST:8443/
 
