@@ -3,6 +3,7 @@
 	
 	
 	<property name="bundle.file" value="${dist.dir}/intuit.war"/>
+	<property name="test" value="false"/>
 	
 	<path id="base.classpath">
 		<fileset dir="${lib.dir}" includes="*.jar"/>
@@ -124,7 +125,7 @@
 	  	</copy>  
 	</target>
 	
-	<target name="test">
+	<target name="test" if="${test}">
 		<echo>Running Test</echo>
 		<java classname="intuit_interview.test.RedisTest" dir="." fork="true" 
 			failonerror="true"  classpathref="tools.classpath">
