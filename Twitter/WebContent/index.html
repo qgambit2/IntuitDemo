@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Main Page</title>
+		<link rel="stylesheet" href="css/style.css"/>
+		<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+		<script type="text/javascript" src="js/react-with-addons.min.js"></script>
+		<script type="text/javascript" src="js/react-dom.min.js"></script>
+		<script type="text/javascript" src="js/intuit-components.js"></script>
+		<script type="text/javascript" src="js/intuit-rest.js"></script>
+	</head>
+	<body class="container">
+		<table class="main">
+			<tr style="align: left;">
+				<td colspan="4" style="border: 0px">
+					<div style="float:left;color:#22abe9"><h2>Welcome <span id="currentUser"></span>!</h2></div>
+					<div style="float: right">
+						<input type="button" name="logout" style="max-width: 120px" class="button"
+							id="follow"  value="Logout" onclick="logout()"/>
+					</div>
+				</td>
+			</tr>
+			<tr style="border: 0px;">
+				<td align="top" style="vertical-align:top;border: 0px;">
+					<h3>MY NEWS FEED</h3>
+					<div style="max-height: 500px; overflow-y: auto;">
+						<table>
+							<thead>
+								<tr>
+									<th>Author</th>
+									<th style="min-width:160px">Message</th>
+									<th style="width: 80px">Date</th>
+									<th>Delete</th>
+								</tr>
+							</thead>
+							<tbody  id="tweets">
+								
+							</tbody>
+						</table>
+					</div>
+					<div style="margin-top:20px; margin-right:20px; float:left;" id="feedPageBack"></div>
+					<div style="margin-top:20px; font-size: 20px; float:left" id="feedPage"></div>
+					<div style="margin-top:20px; margin-left:20px; float:left;" id="feedPageNext"></div>
+				</td>
+				<td align="top" style="vertical-align:top;border: 0px;" >
+					<h3>POST A NEW MESSAGE</h3>
+					<table>
+						<tr style="border: 0px">
+							<td style="border: 0px">
+								<div id="tweetTextAreaHolder"></div>
+							</td>
+						</tr>
+						<tr  style="border: 0px;">
+							<td  style="border: 0px;">
+								<input type="button" class="button" name="posttweet" 
+								id="posttweet"  value="Post a New Message" onClick="postTweet()"/>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td align="top" style="vertical-align:top; border: 0px;">
+					<table style="border: 0px;">
+						<tr style="border: 0px;">
+							<td style="border: 0px;">
+								<h3>FOLLOWEES</h3>
+								<div style="max-height: 200px; overflow-y: auto;">
+									<table>
+										<thead>
+											<tr><th>Username</th><th>Unfollow</th></tr>
+										</thead>
+										<tbody  id="followees">
+											
+										</tbody>
+										
+									</table>
+								</div>
+							</td>
+						</tr>
+						<tr  style="border: 0px;">
+							<td colspan="2"  style="border: 0px;">
+								<input type="button" class="button" name="unfollow" 
+								id="unfollow"  value="Unfollow Selected" onClick="unfollow()"/>
+							</td>
+						</tr>
+						<tr style="border: 0px;">
+							<td style="border: 0px;">
+								<h3 style="margin-bottom: 0px">USERS</h3>
+							</td>
+						</tr>
+						<tr style="border: 0px;">
+							<td nowrap style="border: 0px;">
+								<label for="search">Search: </label>
+								<span id="searchUsersHolder"></span>
+							</td>
+						</tr>
+						<tr style="border: 0px;">
+							<td style="border: 0px;">
+								<div style="max-height: 200px; overflow-y: auto;">
+									<table style="border: 0px;">
+										<tr style="border: 0px">
+											<td style="border: 0px">
+												<table>
+													<thead>
+														<tr><th>Username</th><th>Follow</th></tr>
+													</thead>
+													<tbody  id="users">
+														
+													</tbody>													
+												</table>
+											</td>
+										</tr>
+									</table>
+								</div>			
+							</td>
+						</tr>
+						<tr style="border: 0px;">
+							<td colspan="2"  style="border: 0px;">
+								<input type="button" class="button" name="follow" 
+								id="follow"  value="Follow Selected" onclick="follow()"/>
+							</td>
+						</tr>
+					</table>					
+				</td>
+				<td align="top" style="vertical-align:top; border: 0px;">
+					<h3 style="min-width: 120px">MESSAGES BY USER: <span id="tweetsforuser_username"></span></h3>
+					<div style="max-height: 500px; overflow-y: auto;">
+						<table>
+							<tr style="border: 0px">
+								<td style="border: 0px">
+									<table>
+										<thead>
+											<tr>
+												<th style="min-width:160px">Message</th>
+												<th style="width:80px">Date</th>
+												<th>Delete</th>
+											</tr>
+										</thead>
+										<tbody  id="tweetsforuser">
+											
+										</tbody>				
+									</table>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div style="margin-top:20px; margin-right:20px; float:left;" id="timelinePageBack"></div>
+					<div style="margin-top:20px;font-size: 20px; float:left" id="timelinePage"></div>
+					<div style="margin-top:20px; margin-left:20px; float:left;" id="timelinePageNext"></div>
+				</td>
+			</tr>		
+		</table>
+	</body>
+</html>

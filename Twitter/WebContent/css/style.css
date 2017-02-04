@@ -1,0 +1,106 @@
+h2{
+text-align: center;
+font-size: 24px;
+}
+h3{
+font-size: 20px;
+}
+a{
+   font-size: 20px;
+}
+table{
+	border-collapse:collapse;
+	border:0px;
+}
+thead{
+	background-color:#eeeeee
+}
+hr{
+margin-bottom: 30px;
+}
+#error{
+	color:red
+}
+div.container{
+width: 960px;
+height: 610px;
+margin:50px auto;
+position:relative;
+}
+div.main{
+width: 320px;
+margin-top: 80px;
+float:left;
+padding: 10px 55px 40px;
+border: 15px solid white;
+font-size: 13px;
+}
+input[type=text],[type=password] {
+width: 97.7%;
+height: 34px;
+padding-left: 5px;
+margin-bottom: 20px;
+margin-top: 8px;
+box-shadow: 0 0 5px #00F5FF;
+border: 2px solid #00F5FF;
+color: #4f4f4f;
+font-size: 16px;
+}
+textarea {
+padding-left: 5px;
+margin-bottom: 5px;
+margin-top: 8px;
+box-shadow: 0 0 5px #00F5FF;
+border: 2px solid #00F5FF;
+color: #4f4f4f;
+font-size: 16px;
+}
+label{
+text-shadow: 0 1px 0 #fff;
+font-size: 20px;
+font-weight: bold;
+}
+
+.button {
+width: 100%;
+background: linear-gradient(#22abe9 5%, #36caf0 100%);
+border: 1px solid #0F799E;
+font-size: 20px;
+margin-top: 15px;
+padding: 8px;
+font-weight: bold;
+cursor: pointer;
+color: white;
+text-shadow: 0px 1px 0px #13506D;
+}
+
+.button-small {
+width: 100%;
+background: linear-gradient(#22abe9 5%, #36caf0 100%);
+border: 1px solid #0F799E;
+font-size: 12px;
+margin-top: 2px;
+padding: 2px;
+font-weight: bold;
+cursor: pointer;
+color: white;
+text-shadow: 0px 1px 0px #13506D;
+}
+.button:hover{
+background: linear-gradient(#36caf0 5%, #22abe9 100%);
+}
+#login:hover,#logout:hover, button:hover{
+background: linear-gradient(#36caf0 5%, #22abe9 100%);
+}
+.button:hover{
+background: linear-gradient(#36caf0 5%, #22abe9 100%);
+}
+th, td{
+	border: 1px solid black;
+	padding: 5px; 
+	margin: 5px;
+	font-size: 18px;
+}
+td.a{
+	font-size: 18px;
+}
