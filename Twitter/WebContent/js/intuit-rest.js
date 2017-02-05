@@ -49,8 +49,8 @@ function getTweets(searchAfter){
    		if (json.Tweets){
 	  		$.each(json.Tweets, function (i, n){
 	  			var item = json.Tweets[i];
-	  			var userName = $("<div>").text(item.username).html();
-	  			var message = $("<div>").text(item.message).html();
+	  			var userName = $("<div>").text(item.username).html(); //anti-xss
+	  			var message = $("<div>").text(item.message).html(); //anti-xss
 	  			var tweetStr = '<tr><td><a href="javascript:void(0)" onclick="getTweetsForUser(\''+userName+'\',true)">'
 		  			+userName+'</a></td><td><div style="min-height: 30px; min-width: 100px; max-width: 140px">'+
 	  			message+'</div></td><td>'+item.date+'</td>';
@@ -121,16 +121,13 @@ function getTweets(searchAfter){
 		  			var item = json.UserInfos[i];
 		  			var itemUsername = $("<div>").text(item.username).html(); //anti-xss
 		  			if (itemUsername == currentUser){
-		  				$('<tr><td><a href="#'+itemUsername+'" onClick="getTweetsForUser(\''+itemUsername+'\',true)">'
+		  				$('<tr><td><a href="javascript:void(0)" onClick="getTweetsForUser(\''+itemUsername+'\',true)">'
 			  			+itemUsername+'</a></td><td></td></tr>').appendTo('#users');
 		  			}
 		  			else{
-			  			$('<tr><td><a id="foll_'+itemUsername+'" href="#'+itemUsername+'">'
+			  			$('<tr><td><a  href="javascript:void(0)" onClick="getTweetsForUser(\''+itemUsername+'\',true)">'
 			  			+itemUsername+'</a></td><td style="text-align:center"><input id="followuser_"'+
 			  			itemUsername+' type="checkbox" value="'+itemUsername+'"></td></tr>').appendTo('#users');
-			  			$("#foll_"+itemUsername).on("click", function(){
-  							getTweetsForUser(itemUsername,true);
-						});
 			  		}
 		  		});
 		  	}
@@ -161,7 +158,7 @@ function getTweets(searchAfter){
 		},
 	    success: function(json, status){
 	    	$("#tweetsforuser tr").remove();
-	    	var itemUsername = $("<div>").text(userId).html();
+	    	var itemUsername = $("<div>").text(userId).html(); //anti-xss
 	    	$("#tweetsforuser_username").html(itemUsername);
 	    	timelinePage = json.page;
 	    	var totalTimelinePages = json.totalPages;
@@ -186,13 +183,13 @@ function getTweets(searchAfter){
 	   		if (json.Tweets){
 		  		$.each(json.Tweets, function (i, n){
 		  			var item = json.Tweets[i];
-		  			var itemMessage = $("<div>").text(item.message).html();
+		  			var itemMessage = $("<div>").text(item.message).html(); //anti-xss
 		  			var tweetStr = '<tr><td><div style="min-height: 30px;  min-width: 100px; max-width: 140px">'
 		  			+itemMessage+'</div></td><td>'+item.date+'</td>';
 		  			
 		  			if (item.username == currentUser){
 		  				tweetStr = tweetStr+
-		  				'<td style="width:24px; text-align:center"><a href="#" onClick="deleteTweet(\''+item.id+'\',true)"><img src="images/trashcan_small.jpg"/></a></td></tr>';
+		  				'<td style="width:24px; text-align:center"><a href="javascript:void(0)" onClick="deleteTweet(\''+item.id+'\',true)"><img src="images/trashcan_small.jpg"/></a></td></tr>';
 		  			}
 		  			else{
 		  				tweetStr = tweetStr+"<td/></tr>";
@@ -225,8 +222,8 @@ function getTweets(searchAfter){
 	   		if (json.UserInfos){
 		  		$.each(json.UserInfos, function (i, n){
 		  			var item = json.UserInfos[i];
-		  			var itemUsername = $("<div>").text(item.username).html();
-		  			$('<tr><td><a href="#" onclick="getTweetsForUser(\''+itemUsername+'\',true)">'
+		  			var itemUsername = $("<div>").text(item.username).html(); //anti-xss
+		  			$('<tr><td><a href="javascript:void(0)" onclick="getTweetsForUser(\''+itemUsername+'\',true)">'
 		  			+itemUsername+'</a></td><td style="text-align:center"><input id="unfollow_"'+itemUsername+' type="checkbox" value="'+itemUsername+'"></td>').appendTo('#followees');
 		  		});
 		  	}
