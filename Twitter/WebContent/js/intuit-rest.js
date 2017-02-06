@@ -1,11 +1,11 @@
 var currentUser;
-var feedAPI = "/twitter/tweets";
-var followeeAPI = "/twitter/followees";
-var unfollowAPI = "/twitter/unfollow";
-var followAPI = "/twitter/follow";
-var searchAPI = "/twitter/search";
-var logoutAPI ="/twitter/logout";
-var userMessagesAPI ="/twitter/tweets/user/";
+var feedAPI = "twitter/tweets";
+var followeeAPI = "twitter/followees";
+var unfollowAPI = "twitter/unfollow";
+var followAPI = "twitter/follow";
+var searchAPI = "twitter/search";
+var logoutAPI ="twitter/logout";
+var userMessagesAPI ="twitter/tweets/user/";
 var feedPage = 1;
 var timelinePage = 1;
   
@@ -77,7 +77,7 @@ function getTweets(searchAfter){
     		window.location = 'login.html';
 	    		return;
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
 }
@@ -140,7 +140,7 @@ function getTweets(searchAfter){
 	    		window.location = 'login.html';
 	    		return;
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
   }
@@ -206,7 +206,7 @@ function getTweets(searchAfter){
 	    		window.location = 'login.html';
 	    		return;
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
   }
@@ -236,7 +236,7 @@ function getTweets(searchAfter){
 	    		window.location = 'login.html';
 	    		return;
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
   }
@@ -267,7 +267,7 @@ function getTweets(searchAfter){
 	    		window.location = 'login.html';
 	    		return;
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
   }
@@ -297,7 +297,7 @@ function getTweets(searchAfter){
 	    		window.location = 'login.html';
 	    		return;
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
 	}
@@ -332,7 +332,7 @@ function getTweets(searchAfter){
 	    		window.location = 'login.html';
 	    		return;
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
 	}
@@ -352,7 +352,7 @@ function getTweets(searchAfter){
 	    	if (jqXHR.status == '401'){
 	    		return;  //silently ignore.
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
   }
@@ -369,7 +369,7 @@ function getTweets(searchAfter){
 	    		window.location = 'login.html';
 	    		return;
 	    	}
-	        alert(errThrown);
+	        alert(errorThrown);
 	    }
 	}); 	
   }
