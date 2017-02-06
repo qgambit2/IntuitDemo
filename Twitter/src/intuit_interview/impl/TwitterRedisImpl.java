@@ -39,11 +39,11 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class TwitterRedisImpl implements Twitter {
 
-	private int feedSize = 100;
-	int sessionTimeout = 1800;
-	IdentitySource identitySource = new DummyIdentitySource();
-	
-	DateFormat sdfIso8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+	private int pageSize = 100;
+	private int inactivityTimeout = 1800;
+	private int maxTimelineSize = 1000;
+	private IdentitySource identitySource = new DummyIdentitySource();
+	private DateFormat sdfIso8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
 	private JedisPool pool = null;
 	
 	private static final Logger logger                  =
@@ -62,12 +62,19 @@ public class TwitterRedisImpl implements Twitter {
 	private static final String TWEET_MESSAGE = "message";
 	private static final String TWEET_USERNAME = "username";
 	private static final String TWEET_TIME = "time";
-	//private static final String TWEET_USER_ASOC = "tweet_user_asoc:";
-	
+
 	private static final String USERNAME_TOKEN = "username_token:";
 	private static final String TOKEN_USERNAME = "token_username:";
 	
 	private static final String USERNAME_SEARCH = "username_search:";
+	private final static String REDIS_HOST = "REDIS_HOST";
+	private final static String REDIS_PORT = "REDIS_PORT";
+	private final static String LDAP_URL = "LDAP_URL";
+	private final static String LDAP_PRINCIPAL_TEMPLATE= "LDAP_PRINCIPAL_TEMPLATE";
+	private final static String IDENTITY_SOURCE_CLASS = "IDENTITY_SOURCE_CLASS";
+	private final static String INACTIVITY_TIMEOUT = "INACTIVITY_TIMEOUT";
+	private final static String MAXIMUM_TIMELINE_SIZE = "MAXIMUM_TIMELINE_SIZE";
+	private final static String PAGE_SIZE = "PAGE_SIZE";
 	
 	private ExecutorService executor = Executors.newFixedThreadPool(5, new ThreadFactory() {
 		public Thread newThread(Runnable r) {
@@ -77,17 +84,17 @@ public class TwitterRedisImpl implements Twitter {
         }
 	});
 	
-	private final static String REDIS_HOST = "REDIS_HOST";
-	private final static String REDIS_PORT = "REDIS_PORT";
-	private final static String LDAP_URL = "LDAP_URL";
-	private final static String LDAP_PRINCIPAL_TEMPLATE= "LDAP_PRINCIPAL_TEMPLATE";
-	private final static String IDENTITY_SOURCE_CLASS = "IDENTITY_SOURCE_CLASS";
+	
 	public TwitterRedisImpl(){
 		String host = null;
 		String port = null;
 		String ldapUrl = null;
 		String ldapPrincipalTemplate = null;
 		String identitySourceClass = null;
+		String sInactivityTimeout = null;
+		String sMaximumTimelineSize = null;
+		String sPageSize = null;
+		
 		try{
 			Context ctx = new InitialContext();
 			ctx = (Context) ctx.lookup("java:comp/env");
@@ -105,6 +112,15 @@ public class TwitterRedisImpl implements Twitter {
 			}catch(Exception e){}
 			try{
 				identitySourceClass = (String) ctx.lookup(IDENTITY_SOURCE_CLASS);
+			}catch(Exception e){}
+			try{
+				sInactivityTimeout = (String) ctx.lookup(INACTIVITY_TIMEOUT);
+			}catch(Exception e){}
+			try{
+				sMaximumTimelineSize = (String) ctx.lookup(MAXIMUM_TIMELINE_SIZE);
+			}catch(Exception e){}
+			try{
+				sPageSize = (String) ctx.lookup(PAGE_SIZE);
 			}catch(Exception e){}
 		}
 		catch(NamingException e){
@@ -126,6 +142,27 @@ public class TwitterRedisImpl implements Twitter {
 		if (identitySourceClass == null){
 			identitySourceClass = System.getProperty(IDENTITY_SOURCE_CLASS);
 		}
+		if (sInactivityTimeout == null){
+			sInactivityTimeout = System.getProperty(INACTIVITY_TIMEOUT);
+		}
+		if (sMaximumTimelineSize == null){
+			sMaximumTimelineSize = System.getProperty(MAXIMUM_TIMELINE_SIZE);
+		}
+		if (sPageSize == null){
+			sPageSize = System.getProperty(PAGE_SIZE);
+		}
+		
+		
+		if (sInactivityTimeout!=null){
+			inactivityTimeout = Integer.parseInt(sInactivityTimeout);
+		}
+		if (sMaximumTimelineSize!=null){
+			maxTimelineSize = Integer.parseInt(sMaximumTimelineSize);
+		}
+		if (sPageSize!=null){
+			pageSize = Integer.parseInt(sPageSize);
+		}
+		
 		
 		if (identitySourceClass!=null){
 			try{
@@ -155,20 +192,22 @@ public class TwitterRedisImpl implements Twitter {
 
 	
 	public Timeline getNewsFeed(String userId, int page) throws TwitterException{
-		return getNewsFeed(userId, feedSize, page-1);  //0 based pages in backend
+		return getNewsFeed(userId, pageSize, page-1);  //0 based pages in backend
 	}
 	
 	
 	public Timeline getTimeline(String userId, int page) throws TwitterException{
-		return getTimeline(userId, feedSize, page-1);  //0 based pages in backend
+		return getTimeline(userId, pageSize, page-1);  //0 based pages in backend
 	}
 	
 	public void setIdentitySource(IdentitySource identitySource) {
 		this.identitySource = identitySource;
 	}
-	public void setSessionTimeout(int sessionTimeout) {
-		this.sessionTimeout = sessionTimeout;
+
+	public void setMaxTimelineSize(int maxTimelineSize) {
+		this.maxTimelineSize = maxTimelineSize;
 	}
+
 
 	//handle timeouts. Seems like JEDIS client very rarely (after long period of inactivity)
 	//fails to connect. Not sure if it's a DOCKER networking issue.
@@ -284,9 +323,20 @@ public class TwitterRedisImpl implements Twitter {
 			}
 			final Long tweetKey = jedis.incr(TWEET_INCR_KEY);
 			
+			//remove elements to keep time line from growing above max size (1K default)
+			Set<String> myTimeLine = jedis.zrange(USER_TWEETS+username, maxTimelineSize-1, -1); //leave 999 records
+			String[] sToDelete = null;
+			if (myTimeLine!=null && myTimeLine.size()>0){
+				int index = 0;
+				sToDelete = new  String[myTimeLine.size()];
+				for (String s:myTimeLine){
+					sToDelete[index++]=s;
+				}
+			}			
+
 			//get followers
 			final Set<String> followers = jedis.zrange(FOLLOWERS+username, 0, -1);
-
+			final String[] _delete = sToDelete;
 			//execute fanout (the most intensive operation) in separate thread.
 			executor.execute(new Runnable(){
 				public void run(){
@@ -295,10 +345,9 @@ public class TwitterRedisImpl implements Twitter {
 						jedis = getResource();
 						
 						Transaction t = jedis.multi();	
-												
+	
 						//add tweet reference to own tweet set
-						long now = new Date().getTime();
-						t.zadd(USER_TWEETS+username, -1*now, String.valueOf(tweetKey));
+						t.zadd(USER_TWEETS+username, -1*tweetKey, String.valueOf(tweetKey));
 						
 						//add tweet itself
 						Map<String, String> hash = new HashMap<>();
@@ -309,12 +358,18 @@ public class TwitterRedisImpl implements Twitter {
 
 						//add tweet to followers timelines (Fan out)
 						for (String follower:followers){
-							t.zadd(POSTS+follower, -1*now, String.valueOf(tweetKey));
+							t.zadd(POSTS+follower, -1*tweetKey, String.valueOf(tweetKey));
 						}
 						//assuming we always follow ourselves add tweet to own timeline
-						t.zadd(POSTS+username, -1*now, String.valueOf(tweetKey));
+						t.zadd(POSTS+username, -1*tweetKey, String.valueOf(tweetKey));
 
+						if (_delete!=null && _delete.length>0){
+							removeTweets(username, followers, t, _delete);
+						}
 						t.exec();
+					}
+					catch(Exception e){
+						logger.error(e.getMessage(), e);
 					}
 					finally{
 						if (jedis!=null){
@@ -358,19 +413,12 @@ public class TwitterRedisImpl implements Twitter {
 						jedis = getResource();
 						
 						Transaction t = jedis.multi();	
-												
-						//add tweet reference to own tweet set
-						t.zrem(USER_TWEETS+username, String.valueOf(tweetKey));
-						
-						for (String follower:followers){
-							t.zrem(POSTS+follower, String.valueOf(tweetKey));
-						}
-						//assuming we always follow ourselves add tweet to own timeline
-						t.zrem(POSTS+username, String.valueOf(tweetKey));
-						
-						t.del(TWEETS+tweetKey);
+						removeTweets(username,  followers, t, ""+tweetKey);				
 						
 						t.exec();
+					}
+					catch(Exception e){
+						logger.error(e.getMessage(), e);
 					}
 					finally{
 						if (jedis!=null){
@@ -385,6 +433,27 @@ public class TwitterRedisImpl implements Twitter {
 				jedis.close();
 			}
 		}
+	}
+	
+	private void removeTweets(final String username, 
+			Set<String> followers, Transaction t, String... tweetKeys) throws TwitterException{
+		//get followers
+		final String[] tweetNames = new String[tweetKeys.length];
+		for (int i=0;i<tweetKeys.length;i++){
+			tweetNames[i] = TWEETS+tweetKeys[i];
+		}
+		//execute fanout (the most intensive operation) in separate thread.
+											
+		//add tweet reference to own tweet set
+		t.zrem(USER_TWEETS+username, tweetKeys);
+		
+		for (String follower:followers){
+			t.zrem(POSTS+follower, tweetKeys);
+		}
+		//assuming we always follow ourselves add tweet to own timeline
+		t.zrem(POSTS+username, tweetKeys);
+		
+		t.del(tweetNames);
 	}
 
 	private Timeline getNewsFeed(String userName, int feedSize, int page) throws TwitterException{
@@ -481,10 +550,10 @@ public class TwitterRedisImpl implements Twitter {
 			long total = jedis.zcount(USERNAME_SEARCH+search, Long.MIN_VALUE, Long.MAX_VALUE);
 			Set<String> userNames = null;
 			if (search==null || search.length()>0){
-				userNames = jedis.zrange(USERNAME_SEARCH+search,0, feedSize);
+				userNames = jedis.zrange(USERNAME_SEARCH+search,0, pageSize);
 			}
 			else{
-				userNames = jedis.zrange(ALL_USERS, 0, feedSize);
+				userNames = jedis.zrange(ALL_USERS, 0, pageSize);
 			}
 			List<User> userList = new ArrayList<User>();
 			for (String name:userNames){
@@ -544,10 +613,10 @@ public class TwitterRedisImpl implements Twitter {
 			
 			Transaction t = jedis.multi();	
 			t.set(USERNAME_TOKEN+username, randomUUID);
-			t.expire(USERNAME_TOKEN+username, sessionTimeout);
+			t.expire(USERNAME_TOKEN+username, inactivityTimeout);
 			
 			t.set(TOKEN_USERNAME+randomUUID, username);
-			t.expire(TOKEN_USERNAME+randomUUID, sessionTimeout);
+			t.expire(TOKEN_USERNAME+randomUUID, inactivityTimeout);
 			
 			if (!userExists){ //add user if needed.
 				Map<String, String> hash = new HashMap<>();
@@ -597,8 +666,8 @@ public class TwitterRedisImpl implements Twitter {
 			jedis = getResource();
 			String username = jedis.get(TOKEN_USERNAME+token);
 			if (username!=null){
-				jedis.expire(USERNAME_TOKEN+username, sessionTimeout); //extend
-				jedis.expire(TOKEN_USERNAME+token, sessionTimeout); //extend
+				jedis.expire(USERNAME_TOKEN+username, inactivityTimeout); //extend
+				jedis.expire(TOKEN_USERNAME+token, inactivityTimeout); //extend
 			}
 			return username;
 		}
