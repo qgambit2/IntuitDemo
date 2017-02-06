@@ -9,6 +9,10 @@
      <Environment name="REDIS_HOST" value="192.168.99.100" type="java.lang.String"/> 	
      <Environment name="LDAP_URL" value="ldap://192.168.99.100:389"  type="java.lang.String"/>
      <Environment name="LDAP_PRINCIPAL_TEMPLATE" value="cn={0},dc=example,dc=org"  type="java.lang.String"/>
+     <Environment name="PAGE_SIZE" value="100"  type="java.lang.String"/>	
+     <Environment name="INACTIVITY_TIMEOUT" value="1800"  type="java.lang.String"/>	
+     <Environment name="MAXIMUM_TIMELINE_SIZE" value="1000"  type="java.lang.String"/>
+     
 #### Once the web application is up and running it can be accessed by going to root location. Either based on war file name of based on a location specified specifically for it (Server.xml in Tomcat).  For example <i>http://localhost:8080/intuit</i>. Users will only be able to login using valid credential of users from LDAP.  For REST documentation the relative url is <i>twitter</i>. For example  <i>http://localhost:8080/intuit/twitter</i>
 
 ## AWS Demo
