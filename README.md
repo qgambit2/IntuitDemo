@@ -15,12 +15,12 @@
      <Environment name="INACTIVITY_TIMEOUT" value="1800"  type="java.lang.String"/>	
      <Environment name="MAXIMUM_TIMELINE_SIZE" value="1000"  type="java.lang.String"/>
      
-#### Once the web application is up and running it can be accessed by going to root location. Either based on war file name of based on a location specified specifically for it (Server.xml in Tomcat).  For example <i>http://localhost:8080/intuit</i>. Users will only be able to login using valid credential of users from LDAP.  For REST documentation the relative url is <i>twitter</i>. For example  <i>http://localhost:8080/intuit/twitter</i>
+#### Once the web application is up and running it can be accessed by going to root location. Either based on war file name of based on a location specified specifically for it (Server.xml in Tomcat).  For example <i>https://52.52.230.64:8443/</i>. Users will only be able to login using valid credential of users from LDAP.  For REST documentation the relative url is <i>twitter</i>. For example  <i>https://52.52.230.64:8443/twitter</i>
 
 ## AWS Demo
 
 ### Working example is provided on AWS. It consists of:
-1. Ubuntu EC2 instance with Tomcat installed. Application is deployed on Tomcat.  Location is https://HOST:8443/
-2. Amazon Linux EC2 instance on which Docker is installed. Open LDAP, and LDAP admin UI containers are hosted on Docker.  LDAP admin UI is https://HOST2:6443
+1. Ubuntu EC2 instance with Tomcat installed. Application is deployed on Tomcat.  Location is https://52.52.230.64:8443/
+2. Amazon Linux EC2 instance on which Docker is installed. Open LDAP, and LDAP admin UI containers are hosted on Docker.  LDAP admin UI is https://52.8.60.149:6443/
 3. Redis from Amazon's ElastiCache service.
 
