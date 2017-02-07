@@ -8,7 +8,7 @@
 #### Sample environment properties defined in Tomcat's conf/context.xml:
      <Environment name="TWITTER_TYPE" value="REDIS"  type="java.lang.String"/>  <!-- MEMORY or REDIS -->
      <Environment name="REDIS_HOST" value="192.168.99.100" type="java.lang.String"/> 	
-     <Environment name="IDENTITY_SOURCE_TYPE" value="LDAP" type="java.lang.String"/> <!-- LDAP Or DUMMY -->	
+     <Environment name="IDENTITY_SOURCE_TYPE" value="LDAP" type="java.lang.String"/> <!-- LDAP or DUMMY -->	
      <Environment name="LDAP_URL" value="ldap://192.168.99.100:389"  type="java.lang.String"/>
      <Environment name="LDAP_PRINCIPAL_TEMPLATE" value="cn={0},dc=example,dc=org"  type="java.lang.String"/>
      <Environment name="PAGE_SIZE" value="100"  type="java.lang.String"/>	
