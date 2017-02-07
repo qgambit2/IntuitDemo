@@ -10,7 +10,7 @@ $(document).ready(function(){
 		}else {
 			var request = $.ajax({
 		    	type: "POST",
-		    	url: "/twitter/login",
+		    	url: "twitter/login",
 		    	data: { username: username, password:password},
 			    // The key needs to match your method's input parameter (case-sensitive).
 			    success: function(data){
