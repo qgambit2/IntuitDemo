@@ -130,6 +130,9 @@
 		<java classname="intuit_interview.test.RedisTest" dir="." fork="true" 
 			failonerror="true"  classpathref="tools.classpath">
 		</java>
+		<java classname="intuit_interview.test.MemoryTest" dir="." fork="true" 
+			failonerror="true"  classpathref="tools.classpath">
+		</java>
 	</target>
 	
 	<target name="bundle" depends="compile, test, docs">
