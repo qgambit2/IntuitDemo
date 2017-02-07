@@ -1,4 +1,4 @@
-# Intuit Demo Details
+# Twitter Clone Case Study
 
 #### Twitter is a root folder of Eclipse project that builds a WAR file (<b>intuit.war</b>). See build/build.xml file inside the project.
 #### The WAR file can be deployed on J2EE server like Tomcat.
