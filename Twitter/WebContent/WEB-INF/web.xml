@@ -3,6 +3,21 @@
 
 <web-app>
     <display-name>Intuit Twitter Demo Application</display-name>
+    <env-entry>
+  		<env-entry-name>PAGE_SIZE</env-entry-name>
+  		<env-entry-value>100</env-entry-value>
+  		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<env-entry>
+  		<env-entry-name>TWITTER_TYPE</env-entry-name>
+  		<env-entry-value>REDIS</env-entry-value>
+  		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>
+	<env-entry>
+  		<env-entry-name>IDENTITY_SOURCE_TYPE</env-entry-name>
+  		<env-entry-value>LDAP</env-entry-value>
+  		<env-entry-type>java.lang.String</env-entry-type>
+	</env-entry>		
     <servlet>
         <servlet-name>TwitterAPIApp</servlet-name>
         <servlet-class>org.apache.wink.server.internal.servlet.RestServlet</servlet-class>
