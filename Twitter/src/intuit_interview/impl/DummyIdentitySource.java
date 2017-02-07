@@ -9,8 +9,6 @@ public class DummyIdentitySource implements IdentitySource{
 
 	public DummyIdentitySource(){}
 	
-	public DummyIdentitySource(String url, String template){}
-	
 	public void embellishUser(User user) throws TwitterException {
 		//nothing to do
 	}

@@ -13,7 +13,7 @@ import javax.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import intuit_interview.impl.TwitterRedisImpl;
+import intuit_interview.impl.TwitterImplemenationProvider;
 import intuit_interview.interfaces.Twitter;
 import intuit_interview.interfaces.TwitterService;
 import intuit_interview.model.AuthenticationException;
@@ -25,7 +25,7 @@ import intuit_interview.model.Users;
 
 public class TwitterServiceImpl implements TwitterService {
 
-	Twitter twitter = new TwitterRedisImpl();
+	Twitter twitter = TwitterImplemenationProvider.getInstance().getImplementation();
 	private static final Logger logger                  =
              LoggerFactory.getLogger(TwitterServiceImpl.class);
 	

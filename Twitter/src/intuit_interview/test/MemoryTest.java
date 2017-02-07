@@ -4,31 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import intuit_interview.impl.DummyIdentitySource;
-import intuit_interview.impl.TwitterRedisImpl;
+import intuit_interview.impl.TwitterMemoryImpl;
 import intuit_interview.model.Timeline;
 import intuit_interview.model.Tweet;
 import intuit_interview.model.User;
 import intuit_interview.model.Users;
-import redis.clients.jedis.Jedis;
 
 
-public class RedisTest {
+public class MemoryTest {
 	public static void main(String [] args) throws Exception{
 		runTest();
 	}
 		
 	public static void runTest() throws Exception{
 		
-		String dockerJedisHost = "192.168.99.100";
-		int redisPort = 6379;
-		Jedis jedis = new Jedis(dockerJedisHost, redisPort);
-		jedis.flushAll();
-		jedis.close();
 		
-
-		TwitterRedisImpl twitter = new TwitterRedisImpl();
-		twitter.setIdentitySource(new DummyIdentitySource());
-		twitter.init(dockerJedisHost, redisPort);
+		System.setProperty("IDENTITY_SOURCE_CLASS", "intuit_interview.impl.DummyIdentitySource");
+		TwitterMemoryImpl twitter = new TwitterMemoryImpl();
+	    twitter.setIdentitySource(new DummyIdentitySource());
 		
 		User u1 = new User();
 		u1.setUsername("eugene");
@@ -133,6 +126,12 @@ public class RedisTest {
 			throw new Exception("George should have no posts yet");
 		}
 		twitter.follow("curious_george", eugeneUsers);
+		List<User> georgeFollows2 = twitter.getFollowees("curious_george").getUsers();
+		if (georgeFollows2.size()!=2){
+			throw new Exception("George should be following 2 persons but is following: "+georgeFollows2.size());
+		}
+		
+		
 		tweets = twitter.getNewsFeed("curious_george", 1).getTweets();
 		if (tweets.size()!=1){
 			throw new Exception("George should have one post now");
@@ -156,7 +155,7 @@ public class RedisTest {
 		
 		List<User> georgeFollows = twitter.getFollowees("curious_george").getUsers();
 		if (georgeFollows.size()!=1){
-			throw new Exception("George should be following one person");
+			throw new Exception("George should be following one person but is following: "+georgeFollows.size());
 		}
 		tweets = twitter.getNewsFeed("curious_george", 1).getTweets();
 		if (tweets.size()!=1){
@@ -293,32 +292,6 @@ public class RedisTest {
 			throw new Exception("User list should have 2 users but has "+u.getUsers().size());
 		}
 		
-		
-		for (int i=0;i<40010;i++){
-			if (i%10000 == 0){
-				System.out.println(i + " tweets added");
-			}
-			Tweet t = new Tweet();
-			t.setMessage(""+i);
-			
-			if (i%625==0){
-				t.setUsername("curious_george");
-			}
-			else if (i%125==0){
-				t.setUsername("vadim");
-			}
-			else if (i%25==0){
-				t.setUsername("ethan");
-			}
-			else if (i%5==0){
-				t.setUsername("valerie");
-			}
-			else{
-				t.setUsername("eugene");
-			}
-			twitter.postTweet(t);
-		}
-		Thread.sleep(500);
 		System.out.println("DONE with ALL tests");
 		
 		

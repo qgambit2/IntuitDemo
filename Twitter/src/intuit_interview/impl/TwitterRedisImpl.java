@@ -1,8 +1,5 @@
 package intuit_interview.impl;
 
-import java.lang.reflect.Constructor;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,22 +7,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import intuit_interview.interfaces.IdentitySource;
-import intuit_interview.interfaces.Twitter;
 import intuit_interview.model.Timeline;
 import intuit_interview.model.Tweet;
 import intuit_interview.model.TwitterException;
@@ -37,15 +27,10 @@ import redis.clients.jedis.Transaction;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
-public class TwitterRedisImpl implements Twitter {
+public class TwitterRedisImpl extends TwitterBase {
 
-	private int pageSize = 100;
-	private int inactivityTimeout = 1800;
-	private int maxTimelineSize = 1000;
-	private IdentitySource identitySource = new DummyIdentitySource();
-	private DateFormat sdfIso8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
 	private JedisPool pool = null;
-	
+
 	private static final Logger logger                  =
             LoggerFactory.getLogger(TwitterRedisImpl.class);
 	
@@ -67,14 +52,7 @@ public class TwitterRedisImpl implements Twitter {
 	private static final String TOKEN_USERNAME = "token_username:";
 	
 	private static final String USERNAME_SEARCH = "username_search:";
-	private final static String REDIS_HOST = "REDIS_HOST";
-	private final static String REDIS_PORT = "REDIS_PORT";
-	private final static String LDAP_URL = "LDAP_URL";
-	private final static String LDAP_PRINCIPAL_TEMPLATE= "LDAP_PRINCIPAL_TEMPLATE";
-	private final static String IDENTITY_SOURCE_CLASS = "IDENTITY_SOURCE_CLASS";
-	private final static String INACTIVITY_TIMEOUT = "INACTIVITY_TIMEOUT";
-	private final static String MAXIMUM_TIMELINE_SIZE = "MAXIMUM_TIMELINE_SIZE";
-	private final static String PAGE_SIZE = "PAGE_SIZE";
+	
 	
 	private ExecutorService executor = Executors.newFixedThreadPool(5, new ThreadFactory() {
 		public Thread newThread(Runnable r) {
@@ -85,130 +63,33 @@ public class TwitterRedisImpl implements Twitter {
 	});
 	
 	
-	public TwitterRedisImpl(){
-		String host = null;
-		String port = null;
-		String ldapUrl = null;
-		String ldapPrincipalTemplate = null;
-		String identitySourceClass = null;
-		String sInactivityTimeout = null;
-		String sMaximumTimelineSize = null;
-		String sPageSize = null;
-		
-		try{
-			Context ctx = new InitialContext();
-			ctx = (Context) ctx.lookup("java:comp/env");
-			try{
-				host = (String) ctx.lookup(REDIS_HOST);
-			}catch(Exception e){}
-			try{
-				port = (String) ctx.lookup(REDIS_PORT);
-			}catch(Exception e){}
-			try{
-				ldapUrl = (String) ctx.lookup(LDAP_URL);
-			}catch(Exception e){}
-			try{
-				ldapPrincipalTemplate = (String) ctx.lookup(LDAP_PRINCIPAL_TEMPLATE);
-			}catch(Exception e){}
-			try{
-				identitySourceClass = (String) ctx.lookup(IDENTITY_SOURCE_CLASS);
-			}catch(Exception e){}
-			try{
-				sInactivityTimeout = (String) ctx.lookup(INACTIVITY_TIMEOUT);
-			}catch(Exception e){}
-			try{
-				sMaximumTimelineSize = (String) ctx.lookup(MAXIMUM_TIMELINE_SIZE);
-			}catch(Exception e){}
-			try{
-				sPageSize = (String) ctx.lookup(PAGE_SIZE);
-			}catch(Exception e){}
-		}
-		catch(NamingException e){
-			logger.error(e.getMessage(), e);
-		}
-		if (host == null){
-			host = System.getProperty(REDIS_HOST,"192.168.99.100");
-		}
-		if (port == null){
-			port = System.getProperty(REDIS_PORT, "6379");
-		}
-		if (ldapUrl == null){
-			ldapUrl = System.getProperty(LDAP_URL, "ldap://192.168.99.100:389");
-		}
-		if (ldapPrincipalTemplate == null){
-			ldapPrincipalTemplate = System.getProperty(LDAP_PRINCIPAL_TEMPLATE,
-					"cn={0},dc=example,dc=org");
-		}
-		if (identitySourceClass == null){
-			identitySourceClass = System.getProperty(IDENTITY_SOURCE_CLASS);
-		}
-		if (sInactivityTimeout == null){
-			sInactivityTimeout = System.getProperty(INACTIVITY_TIMEOUT);
-		}
-		if (sMaximumTimelineSize == null){
-			sMaximumTimelineSize = System.getProperty(MAXIMUM_TIMELINE_SIZE);
-		}
-		if (sPageSize == null){
-			sPageSize = System.getProperty(PAGE_SIZE);
-		}
-		
-		
-		if (sInactivityTimeout!=null){
-			inactivityTimeout = Integer.parseInt(sInactivityTimeout);
-		}
-		if (sMaximumTimelineSize!=null){
-			maxTimelineSize = Integer.parseInt(sMaximumTimelineSize);
-		}
-		if (sPageSize!=null){
-			pageSize = Integer.parseInt(sPageSize);
-		}
-		
-		
-		if (identitySourceClass!=null){
-			try{
-				Class<?> cl = Class.forName(identitySourceClass, true, IdentitySource.class.getClassLoader());
-				Constructor<?> cons = cl.getConstructor(String.class, String.class);
-				Object o = cons.newInstance(ldapUrl, ldapPrincipalTemplate);
-				identitySource = (IdentitySource)o;
-			}
-			catch(Exception e){
-				logger.error(e.getMessage(), e);
-				identitySource = new LDAPIdentitySource(ldapUrl, ldapPrincipalTemplate);
-			}
-		}
-		else{
-			identitySource = new LDAPIdentitySource(ldapUrl, ldapPrincipalTemplate);
-		}
-		TimeZone tz = TimeZone.getTimeZone("UTC");
-		sdfIso8601.setTimeZone(tz);
+	public TwitterRedisImpl(){}
+	
+	
+
+
+
+	public void init(String host, int port){
 		GenericObjectPoolConfig cfg = new GenericObjectPoolConfig();
 		cfg.setTestOnBorrow(true);
 		cfg.setMaxTotal(20);
 		cfg.setMinIdle(2);
 		cfg.setMinEvictableIdleTimeMillis(60000);
 		
-		pool = new JedisPool(cfg, host, Integer.parseInt(port));
+		pool = new JedisPool(cfg, host, port);
 	}
 
 	
 	public Timeline getNewsFeed(String userId, int page) throws TwitterException{
-		return getNewsFeed(userId, pageSize, page-1);  //0 based pages in backend
+		return getNewsFeed(userId, getPageSize(), page-1);  //0 based pages in backend
 	}
 	
 	
 	public Timeline getTimeline(String userId, int page) throws TwitterException{
-		return getTimeline(userId, pageSize, page-1);  //0 based pages in backend
+		return getTimeline(userId, getPageSize(), page-1);  //0 based pages in backend
 	}
 	
-	public void setIdentitySource(IdentitySource identitySource) {
-		this.identitySource = identitySource;
-	}
-
-	public void setMaxTimelineSize(int maxTimelineSize) {
-		this.maxTimelineSize = maxTimelineSize;
-	}
-
-
+	
 	//handle timeouts. Seems like JEDIS client very rarely (after long period of inactivity)
 	//fails to connect. Not sure if it's a DOCKER networking issue.
 	private Jedis getResource(){
@@ -319,12 +200,12 @@ public class TwitterRedisImpl implements Twitter {
 			final String username = tweet.getUsername();
 			if (tweet.getDate()==null){
 				Date now = new Date();
-				tweet.setDate(sdfIso8601.format(now));
+				tweet.setDate(getDateFormat().format(now));
 			}
 			final Long tweetKey = jedis.incr(TWEET_INCR_KEY);
 			
 			//remove elements to keep time line from growing above max size (1K default)
-			Set<String> myTimeLine = jedis.zrange(USER_TWEETS+username, maxTimelineSize-1, -1); //leave 999 records
+			Set<String> myTimeLine = jedis.zrange(USER_TWEETS+username, getMaxTimelineSize()-1, -1); //leave 999 records
 			String[] sToDelete = null;
 			if (myTimeLine!=null && myTimeLine.size()>0){
 				int index = 0;
@@ -549,11 +430,11 @@ public class TwitterRedisImpl implements Twitter {
 			jedis = getResource();
 			long total = jedis.zcount(USERNAME_SEARCH+search, Long.MIN_VALUE, Long.MAX_VALUE);
 			Set<String> userNames = null;
-			if (search==null || search.length()>0){
-				userNames = jedis.zrange(USERNAME_SEARCH+search,0, pageSize);
+			if (search!=null && search.length()>0){
+				userNames = jedis.zrange(USERNAME_SEARCH+search,0, getPageSize());
 			}
 			else{
-				userNames = jedis.zrange(ALL_USERS, 0, pageSize);
+				userNames = jedis.zrange(ALL_USERS, 0, getPageSize());
 			}
 			List<User> userList = new ArrayList<User>();
 			for (String name:userNames){
@@ -600,7 +481,7 @@ public class TwitterRedisImpl implements Twitter {
 	
 	
 	public String login(String username, String password) throws TwitterException{
-		this.identitySource.login(username, password);
+		getIdentitySource().login(username, password);
 		
 		//generate token
 		String randomUUID = UUID.randomUUID().toString();
@@ -613,10 +494,10 @@ public class TwitterRedisImpl implements Twitter {
 			
 			Transaction t = jedis.multi();	
 			t.set(USERNAME_TOKEN+username, randomUUID);
-			t.expire(USERNAME_TOKEN+username, inactivityTimeout);
+			t.expire(USERNAME_TOKEN+username, getInactivityTimeout());
 			
 			t.set(TOKEN_USERNAME+randomUUID, username);
-			t.expire(TOKEN_USERNAME+randomUUID, inactivityTimeout);
+			t.expire(TOKEN_USERNAME+randomUUID, getInactivityTimeout());
 			
 			if (!userExists){ //add user if needed.
 				Map<String, String> hash = new HashMap<>();
@@ -666,8 +547,8 @@ public class TwitterRedisImpl implements Twitter {
 			jedis = getResource();
 			String username = jedis.get(TOKEN_USERNAME+token);
 			if (username!=null){
-				jedis.expire(USERNAME_TOKEN+username, inactivityTimeout); //extend
-				jedis.expire(TOKEN_USERNAME+token, inactivityTimeout); //extend
+				jedis.expire(USERNAME_TOKEN+username, getInactivityTimeout()); //extend
+				jedis.expire(TOKEN_USERNAME+token, getInactivityTimeout()); //extend
 			}
 			return username;
 		}
